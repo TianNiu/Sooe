@@ -9,38 +9,36 @@ class SooeSixCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     current_file_path = self.view.file_name()
 
-    def on_done(dest):
+    # 获得文件内容
+    entire_buffer_region = sublime.Region(0, self.view.size())
 
-      # 获得文件内容
-      entire_buffer_region = sublime.Region(0, self.view.size())
+    # 把内容保存到临时文件
+    self.save_buffer_to_temp_file(entire_buffer_region)
 
-      # 把内容保存到临时文件
-      self.save_buffer_to_temp_file(entire_buffer_region)
+    # 用node 处理临时文件并返回结果
+    output = self.run_script_on_file(current_file_path)
 
-      # 用node 处理临时文件并返回结果
-      self.run_script_on_file(current_file_path, dest)
+    # 替换
+    # self.view.replace(edit, entire_buffer_region, output)
 
+    # 删除临时文件
+    os.remove(TEMP_FILE_PATH)
 
-
-    self.view.window().show_input_panel("test", "placeholder", on_done, None, None)
-
-
-
-
-
-  def run_script_on_file(self, current_file_path, dest):
-    node_path = PluginUtils.get_node_path()
-    script_path = PLUGIN_FOLDER + "/scripts/run_six.js"
-    cmd = [node_path, script_path, '--temp_file_path=' + TEMP_FILE_PATH, '--current_file_path=' + current_file_path, '--dest=' + dest]
-    output = PluginUtils.get_output(cmd)
-    return output.decode(encoding='UTF-8')
-
+    # 打开处理过的文件
+    self.view.window().open_file(current_file_path.replace('index.html', '1.html'))
 
   def save_buffer_to_temp_file(self, region):
     buffer_text = self.view.substr(region)
     f = codecs.open(TEMP_FILE_PATH, mode="w", encoding="utf-8")
     f.write(buffer_text)
     f.close()
+
+  def run_script_on_file(self, current_file_path):
+    node_path = PluginUtils.get_node_path()
+    script_path = PLUGIN_FOLDER + "/scripts/run_six.js"
+    cmd = [node_path, script_path, '--temp_file_path=' + TEMP_FILE_PATH, '--current_file_path=' + current_file_path]
+    output = PluginUtils.get_output(cmd)
+    return output.decode(encoding='UTF-8')
 
 
 class PluginUtils:

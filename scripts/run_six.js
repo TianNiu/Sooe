@@ -1,13 +1,6 @@
 var argv = require('optimist').argv;
 var current_file_path = argv.current_file_path.replace('index.html', '');
 var temp_file_path = argv.temp_file_path;
-var dest = argv.dest;
-
-console.log('fdsafaf');
-
-return false;
-
-
 var path = require('path');
 var fs = require('fs');
 var iconv = require('iconv-lite');
