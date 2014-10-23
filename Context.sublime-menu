@@ -1,4 +1,9 @@
 [{
   "caption": "转换为搜易",
-  "command": "sooe"
+  "children": [
+    {
+      "caption": "91",
+      "command": "sooe"
+    }
+  ]
 }]
