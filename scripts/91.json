@@ -1,0 +1,5 @@
+{
+  "header": "<!--#include virtual=\"/header_footer/haibao_header.html\"-->",
+  "footer": "<!--#include virtual=\"/header_footer/haibao_newfooter.html\"-->",
+  "guestbook": "<script>(?:(\r\n)*?)\\s*?document.*?800\\.91jmw.*?(?:(\r\n)*?)\\s*?<\/script>"
+}

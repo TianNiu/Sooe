@@ -5,40 +5,55 @@ import os, sys, subprocess, codecs, webbrowser
 PLUGIN_FOLDER = os.path.dirname(os.path.realpath(__file__))
 TEMP_FILE_PATH = PLUGIN_FOLDER + "/" + ".__temp__"
 
-class SooeSixCommand(sublime_plugin.TextCommand):
+class SooeCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     current_file_path = self.view.file_name()
+    mode = ''
 
-    # 获得文件内容
-    entire_buffer_region = sublime.Region(0, self.view.size())
+    def on_input_panel_done(dest):
+      # 获得文件内容
+      entire_buffer_region = sublime.Region(0, self.view.size())
 
-    # 把内容保存到临时文件
-    self.save_buffer_to_temp_file(entire_buffer_region)
+      # 把内容保存到临时文件
+      self.save_buffer_to_temp_file(entire_buffer_region)
 
-    # 用node 处理临时文件并返回结果
-    output = self.run_script_on_file(current_file_path)
+      # 用node 处理临时文件并返回结果
+      output = self.run_script_on_file(current_file_path, dest, mode).strip()
 
-    # 替换
-    # self.view.replace(edit, entire_buffer_region, output)
+      print(output)
 
-    # 删除临时文件
-    os.remove(TEMP_FILE_PATH)
+      # 删除临时文件
+      os.remove(TEMP_FILE_PATH)
 
-    # 打开处理过的文件
-    self.view.window().open_file(current_file_path.replace('index.html', '1.html'))
+      # 打开处理过的文件
+      self.view.window().open_file(output)
+
+    def on_quick_panel_done(select):
+      mode = str(select)
+
+      # 显示目标文件输入框
+      self.view.window().show_input_panel("文件名", "", on_input_panel_done, None, None)
+
+
+    # 显示选择框
+    self.view.window().show_quick_panel(["普通页头", "6_页头"], on_quick_panel_done,)
+
+
+
+
+
+  def run_script_on_file(self, current_file_path, dest, mode):
+    node_path = PluginUtils.get_node_path()
+    script_path = PLUGIN_FOLDER + "/scripts/app.js"
+    cmd = [node_path, script_path, '--temp_file_path=' + TEMP_FILE_PATH, '--current_file_path=' + current_file_path, '--dest=' + dest, '--mode=' + mode]
+    output = PluginUtils.get_output(cmd)
+    return output.decode(encoding='UTF-8')
 
   def save_buffer_to_temp_file(self, region):
     buffer_text = self.view.substr(region)
     f = codecs.open(TEMP_FILE_PATH, mode="w", encoding="utf-8")
     f.write(buffer_text)
     f.close()
-
-  def run_script_on_file(self, current_file_path):
-    node_path = PluginUtils.get_node_path()
-    script_path = PLUGIN_FOLDER + "/scripts/run_six.js"
-    cmd = [node_path, script_path, '--temp_file_path=' + TEMP_FILE_PATH, '--current_file_path=' + current_file_path]
-    output = PluginUtils.get_output(cmd)
-    return output.decode(encoding='UTF-8')
 
 
 class PluginUtils:

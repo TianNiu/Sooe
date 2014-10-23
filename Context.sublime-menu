@@ -1,9 +1,4 @@
 [{
   "caption": "转换为搜易",
-  "children": [
-  {
-    "caption": "页头6",
-    "command": "sooe_six"
-  },
-  ]
+  "command": "sooe"
 }]
